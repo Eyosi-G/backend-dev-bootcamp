@@ -1,4 +1,4 @@
-import * as quizRepository from "../repositories/quiz.repository.js";
+import * as quizRepository from "../repositories/quiz.mongo.repository.js";
 
 export const createQuiz = (quiz) => {
   quizRepository.createQuiz(quiz);
@@ -10,6 +10,14 @@ export const getQuizById = (id) => {
   return quizRepository.getQuizById(id);
 };
 
+export const deleteQuizById = (id) => {
+  return quizRepository.deleteQuizById(id);
+};
+
 export const createQuestions = (quizId, questions) => {
-  quizRepository.createQuestions(quizId, questions);
+  return quizRepository.createQuestions(quizId, questions);
+};
+
+export const getQuestionsByQuizId = (quizId) => {
+  return quizRepository.getQuestionsByQuizId(quizId);
 };
