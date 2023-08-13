@@ -1,3 +1,3 @@
 import { MongoClient } from "mongodb";
-const uri = "mongodb://localhost:27017";
-export const Client = new MongoClient(uri);
+export const DB_URI = "mongodb://127.0.0.1:27017/quiz-db";
+export const Client = new MongoClient(DB_URI);

@@ -1,4 +1,4 @@
-import * as quizRepository from "../repositories/quiz.mongo.repository.js";
+import * as quizRepository from "../repositories/quiz.orm.repository.js";
 
 export const createQuiz = (quiz) => {
   quizRepository.createQuiz(quiz);
