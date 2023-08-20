@@ -16,7 +16,7 @@ const TakenQuestionSchema = new mongoose.Schema({
   isAnswerCorrect: {
     type: Boolean,
     required: true,
-  },
+  }
 });
 
 export const TakenQuestionModel = mongoose.model(

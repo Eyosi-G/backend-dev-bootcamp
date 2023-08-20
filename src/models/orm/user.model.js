@@ -6,6 +6,10 @@ const UserSchema = new mongoose.Schema({
     unique: true,
   },
   password: String,
+  role: {
+    type: String,
+    enum: ["QUIZ_MAKER", "QUIZ_TAKER"],
+  },
 });
 
 export const UserModel = mongoose.model("User", UserSchema);

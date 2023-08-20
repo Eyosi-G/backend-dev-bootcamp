@@ -1,44 +1,97 @@
 import express from "express";
 import * as quizService from "../services/quiz.service.js";
-import { Quiz } from "../models/quiz.model.js";
+import * as auth from "../middlewares/auth.js";
 
 const route = express.Router();
-route.get("", async function (req, res) {
-  const quizes = await quizService.getQuizes();
-  res.status(200).json(quizes);
-});
-
-route.get("/:id", async function (req, res) {
-  const id = req.params.id;
-  const quiz = await quizService.getQuizById(id);
-  if (!quiz) {
-    return res.status(404).json({ message: "Quiz not found" });
+// GET /api/v1/quizes
+route.get(
+  "",
+  auth.authenticate,
+  auth.authorize(["QUIZ_MAKER", "QUIZ_TAKER"]),
+  async function (req, res) {
+    const quizes = await quizService.getQuizes(req.user);
+    res.status(200).json(quizes);
   }
-  res.status(200).json(quiz);
-});
+);
 
-route.delete("/:id", async function (req, res) {
-  const id = req.params.id;
-  await quizService.deleteQuizById(id);
-  res.status(200).json({ message: "Quiz successfully deleted" });
-});
+// GET /api/v1/quizes/:id
+route.get(
+  "/:id",
+  auth.authenticate,
+  auth.authorize(["QUIZ_MAKER", "QUIZ_TAKER"]),
+  async function (req, res) {
+    const id = req.params.id;
+    const quiz = await quizService.getQuizById(id, req.user);
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
+    res.status(200).json(quiz);
+  }
+);
 
-route.post("", function (req, res) {
-  quizService.createQuiz(req.body);
-  res.status(200).json({ message: "Quiz successfully created" });
-});
+// DELETE /api/v1/quizes/:id
+route.delete(
+  "/:id",
+  auth.authenticate,
+  auth.authorize(["QUIZ_MAKER"]),
+  async function (req, res) {
+    const id = req.params.id;
+    await quizService.deleteQuizById(id);
+    res.status(200).json({ message: "Quiz successfully deleted" });
+  }
+);
 
-route.post("/:id/questions", async function (req, res) {
-  const quizId = req.params.id;
-  const questions = req.body;
-  await quizService.createQuestions(quizId, questions);
-  res.status(200).json({ message: "questions successfully added" });
-});
+// POST /api/v1/quizes
+route.post(
+  "",
+  auth.authenticate,
+  auth.authorize(["QUIZ_MAKER"]),
+  function (req, res) {
+    quizService.createQuiz(req.body);
+    res.status(200).json({ message: "Quiz successfully created" });
+  }
+);
 
-route.get("/:id/questions", async function (req, res) {
-  const quizId = req.params.id;
-  const questions = await quizService.getQuestionsByQuizId(quizId)
-  res.status(200).json(questions)
-});
+// POST /api/v1/quizes/:id/questions
+route.post(
+  "/:id/questions",
+  auth.authenticate,
+  auth.authorize(["QUIZ_MAKER"]),
+  async function (req, res) {
+    const quizId = req.params.id;
+    const questions = req.body;
+    await quizService.createQuestions(quizId, questions);
+    res.status(200).json({ message: "questions successfully added" });
+  }
+);
+
+// GET /api/v1/quizes/:id/start
+route.get(
+  "/:id/start",
+  auth.authenticate,
+  auth.authorize(["QUIZ_TAKER"]),
+  async function (req, res) {
+    try {
+      const quizId = req.params.id;
+      await quizService.startQuiz(quizId, req.user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// GET /api/v1/quizes/:id/submit
+route.get(
+  "/:id/submit",
+  auth.authorize(["QUIZ_TAKER"]),
+  async function (req, res) {
+    try {
+      const quizId = req.params.id;
+      await quizService.submitQuiz(quizId, req.user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default route;

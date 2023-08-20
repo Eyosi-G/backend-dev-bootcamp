@@ -11,6 +11,10 @@ const TakenQuizSchema = new mongoose.Schema({
   },
   score: Number,
   totalQuestions: Number,
+  isSubmitted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 export const TakenQuizModel = mongoose.model("TakenQuiz", TakenQuizSchema);
